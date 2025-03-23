@@ -22,20 +22,27 @@ def main():
         df = pd.read_sql_query("SELECT * FROM contas_pagar", conn)
         st.dataframe(df)
         
+        
     elif choice == "Contas a Receber":
         st.subheader("Contas a Receber")
         df = pd.read_sql_query("SELECT * FROM contas_receber", conn)
         st.dataframe(df)
+        df1 = pd.DataFrame(df.status.value_counts().reset_index().values, columns=["status", "count"])
+        st.bar_chart(df1, x="status", y="count")
+
         
     elif choice == "Lançamentos":
         st.subheader("Lançamentos Financeiros")
         df = pd.read_sql_query("SELECT * FROM lancamentos", conn)
         st.dataframe(df)
+        df['valor'] = df.apply(lambda x: -x['valor'] if x['tipo']=="Despesa" else x['valor'], axis=1)
+        st.line_chart(df, x="data", y="valor")
         
     elif choice == "Relatórios":
         st.subheader("Relatório de Fluxo de Caixa")
         df = pd.read_sql_query("SELECT tipo, SUM(valor) as total FROM lancamentos GROUP BY tipo", conn)
         st.dataframe(df)
+        st.bar_chart(df, x="tipo", y="total")
     
     conn.close()
     
